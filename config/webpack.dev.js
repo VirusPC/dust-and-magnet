@@ -1,0 +1,26 @@
+const common = require('./webpack.common');
+const { merge } = require('webpack-merge');
+const path = require('path');
+
+// console.log("***************", merge)
+// module.exports = {
+//   ...common,
+//   mode: 'development',
+//   //devtool: 'inline-source-map',
+//   devtool: 'eval-cheap-module-source-map',
+//   devServer: {
+//     contentBase: '../dist',
+//     hot: true,
+//   }
+// }
+module.exports = merge(common, {
+  mode: 'development',
+  devtool: 'eval-cheap-module-source-map',
+  devServer: {
+    open: true,  // 自动打开浏览器
+    hot: true,
+    compress: true, // 启动gzip压缩(数据由服务器传输到浏览器时是可以压缩的)
+    contentBase: path.join(__dirname, 'dist'),
+    port: 3000  // 端口号
+  }
+})
