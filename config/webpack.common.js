@@ -3,19 +3,19 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const fs = require("fs");
 
-const demosDirPath = path.resolve(__dirname, "../src/demos");
-const demos = fs.readdirSync(demosDirPath);
+// const demosDirPath = path.resolve(__dirname, "../src/demos");
+// const demos = fs.readdirSync(demosDirPath);
 
-const demosEntry = {};
-for (const demo of demos) {
-  const indexJS = path.resolve(__dirname, `../src/demos/${demo}/index.js`);
-  if (fs.existsSync(indexJS)) {
-    demosEntry[`index-${demo}`] = indexJS;
-  } else {
-    const indexTS = path.resolve(__dirname, `../src/demos/${demo}/index.ts`);
-    demosEntry[`index-${demo}`] = indexTS;
-  }
-}
+// const demosEntry = {};
+// for (const demo of demos) {
+//   const indexJS = path.resolve(__dirname, `../src/demos/${demo}/index.js`);
+//   if (fs.existsSync(indexJS)) {
+//     demosEntry[`index-${demo}`] = indexJS;
+//   } else {
+//     const indexTS = path.resolve(__dirname, `../src/demos/${demo}/index.ts`);
+//     demosEntry[`index-${demo}`] = indexTS;
+//   }
+// }
 
 const htmlWebpackPluginMinifyConfig = {
   removeComments: true,
@@ -35,7 +35,7 @@ module.exports = {
   mode: "production",
   entry: {
     index: path.join(__dirname, "..", "src/index.ts"),
-    ...demosEntry,
+    //...demosEntry,
   },
   output: {
     path: path.resolve(__dirname, "../dist"),
@@ -145,18 +145,18 @@ module.exports = {
       cache: true,
       chunks: ["index"],
     }),
-    ...demos.map(
-      (demo) =>
-        new HtmlWebpackPlugin({
-          filename: `demos/${demo}/index.html`,
-          template: `src/demos/${demo}/index.html`,
-          title: "index",
-          inject: "body",
-          minify: htmlWebpackPluginMinifyConfig,
-          cache: true,
-          chunks: [`index-${demo}`],
-        })
-    ),
+    // ...demos.map(
+    //   (demo) =>
+    //     new HtmlWebpackPlugin({
+    //       filename: `demos/${demo}/index.html`,
+    //       template: `src/demos/${demo}/index.html`,
+    //       title: "index",
+    //       inject: "body",
+    //       minify: htmlWebpackPluginMinifyConfig,
+    //       cache: true,
+    //       chunks: [`index-${demo}`],
+    //     })
+    // ),
     new MiniCssExtractPlugin({
       // 将样式文件合并成名为main的样式文件
       filename: "css/[name].css",
