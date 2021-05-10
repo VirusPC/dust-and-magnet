@@ -78,8 +78,8 @@ function frameCommand(event: Event, layer: Layer, store: Store) {
     }
     console.log("vx",vxAcc)
     console.log("vy", vyAcc)
-    vxAcc /= magnetData.length;
-    vyAcc /= magnetData.length;
+    //vxAcc /= magnetData.length;
+    //vyAcc /= magnetData.length;
     circleSelection.attr("cx", circleX + vxAcc * time)
     circleSelection.attr("cy", circleY + vyAcc * time)
   }
