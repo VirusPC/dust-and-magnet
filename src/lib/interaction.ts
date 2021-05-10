@@ -18,6 +18,7 @@ export interface Selection {
 }
 
 export class Interactor {
+  name: string;
   activeEvent: string;
   frameEvent: string;
   terminateEvent: string;
@@ -27,14 +28,15 @@ export class Interactor {
   frameCommand: Command;
   terminateCommand: Command;
 
-  constructor() {
+  constructor(name: string) {
+    this.name = name;
     this.activeEvent = "";
     this.frameEvent = "";
     this.terminateEvent = "";
-    this.prepareCommand = () => { };
-    this.activeCommand = () => { };
-    this.frameCommand = () => { };
-    this.terminateCommand = () => { };
+    this.prepareCommand = () => {};
+    this.activeCommand = () => {};
+    this.frameCommand = () => {};
+    this.terminateCommand = () => {};
   }
   // setActiveEvent(event: string): this {
   //   this.activeEvent = event;
@@ -53,7 +55,7 @@ export class Interactor {
   //   return this;
   // };
   // setFrameCommond(command: Command): this {
-  //   this.frameCommand = command; 
+  //   this.frameCommand = command;
   //   return this;
   // };
   // setTerminateCommond(command: Command): this {
@@ -64,94 +66,66 @@ export class Interactor {
     this.prepareCommand = command;
     return this;
   }
-  active(event: string, command: Command): this {
+  active(event: string, command: Command = () => {}): this {
     this.activeEvent = event;
     this.activeCommand = command;
     return this;
-  };
-  frame(event: string, command: Command): this {
+  }
+  frame(event: string, command: Command = () => {}): this {
     this.frameEvent = event;
     this.frameCommand = command;
     return this;
-  };
-  terminate(event: string, command: Command): this {
+  }
+  terminate(event: string, command: Command = () => {}): this {
     this.terminateEvent = event;
     this.terminateCommand = command;
     return this;
-  };
+  }
 
   bindTo(layer: Layer) {
+    const { name } = this;
     const { activeEvent, frameEvent, terminateEvent } = this;
-    const { prepareCommand, activeCommand, frameCommand, terminateCommand } = this;
+    const {
+      prepareCommand,
+      activeCommand,
+      frameCommand,
+      terminateCommand,
+    } = this;
     prepareCommand(layer);
 
     let state = State.TERMINATE;
 
-    layer.node().on(activeEvent, function (event) {
-      console.log("----ative----")
-      console.log(this);
+    layer.node().on(`${activeEvent}.${name}`, function (event) {
+      console.log("----ative----");
       activeCommand(event, layer);
       state = State.ACTIVE;
     });
-    layer.node().on(frameEvent, function (event) {
-      if(state === State.ACTIVE || state === State.FRAME) {
+    layer.node().on(`${frameEvent}.${name}`, function (event) {
+      if (state === State.ACTIVE || state === State.FRAME) {
+        console.log("----frame----");
         activeCommand(event, layer);
         state = State.FRAME;
       }
     });
-    layer.node().on(terminateEvent, function (event) {
-      if(state === State.FRAME) {
+    layer.node().on(`${terminateEvent}.${name}`, function (event) {
+      if (state === State.FRAME) {
+        console.log("----terminate----");
         terminateCommand(event, layer);
         state = State.TERMINATE;
       }
     });
   }
-
 }
-
 
 export class Tool {
   // precondition: Function;
-  // activeEvent: string;
-  // frameEvent: string;
-  // terminateEvent: string;
-  // activeCommond: Function;
-  // frameCommond: Function;
-  // terminateCommond: Function;
-  // selection: Selection;
-  interactor: Interactor;
-  // interactor2: any;
+  selection: Selection;
+  interactors: Interactor[];
 
-  constructor(interactor: Interactor) {
-    this.interactor = interactor;
-  }
-
-
-  setInteractor(layer: Layer) {
-    const backgroundRect = layer.view.getLayer("background").node().select("rect")
-    const width = backgroundRect.attr("width");
-    const height = backgroundRect.attr("height");
-    const magnetLayer = layer.view.createLayer("magnets").setRender((root) => {
-      root.append("rect")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("opacity", 0)
-    });
-    magnetLayer.node().on("mousedown", function (event) {
-      const magnetWidth = 30;
-      const magnetHeight = 30;
-      console.log(this);
-      const position = d3.pointer(event);
-      d3.select(this).append("rect")
-        .attr("x", position[0] - magnetWidth / 2)
-        .attr("y", position[1] - magnetHeight / 2)
-        .attr("width", 30)
-        .attr("height", 30)
-        .attr("fill", "orange")
-    });
+  constructor(interactors: Interactor[]) {
+    this.interactors = interactors;
   }
 }
-
 
 enum State {
   ACTIVE,
