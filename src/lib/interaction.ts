@@ -1,7 +1,7 @@
 import { Layer } from "./render";
 import * as d3 from "d3";
 
-export type Command = (event?: Event, layer?: Layer) => void;
+export type Command = (event?: Event, layer?: Layer, store?: Store) => void;
 
 // export class Command {
 //   event: string;
@@ -17,13 +17,17 @@ export interface Selection {
   query: () => SVGElement[];
 }
 
+export type Store = {
+  [prop: string]: unknown;
+}//Map<string, unknown>;
+
 export class Interactor {
   name: string;
   activeEvent: string;
   frameEvent: string;
   terminateEvent: string;
 
-  prepareCommand: (layer?: Layer) => void;
+  prepareCommand: (layer?: Layer, store?: Store) => void;
   activeCommand: Command;
   frameCommand: Command;
   terminateCommand: Command;
@@ -62,7 +66,7 @@ export class Interactor {
   //   this.terminateCommand = command;
   //   return this;
   // };
-  prepare(command: (layer: Layer) => void): this {
+  prepare(command: (layer: Layer, store: Store) => void): this {
     this.prepareCommand = command;
     return this;
   }
@@ -91,26 +95,28 @@ export class Interactor {
       frameCommand,
       terminateCommand,
     } = this;
-    prepareCommand(layer);
 
     let state = State.TERMINATE;
+    const store: Store = {};
+
+    prepareCommand(layer, store);
 
     layer.node().on(`${activeEvent}.${name}`, function (event) {
       console.log("----ative----");
-      activeCommand(event, layer);
+      activeCommand(event, layer, store);
       state = State.ACTIVE;
     });
     layer.node().on(`${frameEvent}.${name}`, function (event) {
       if (state === State.ACTIVE || state === State.FRAME) {
         console.log("----frame----");
-        activeCommand(event, layer);
+        frameCommand(event, layer, store);
         state = State.FRAME;
       }
     });
     layer.node().on(`${terminateEvent}.${name}`, function (event) {
       if (state === State.FRAME) {
         console.log("----terminate----");
-        terminateCommand(event, layer);
+        terminateCommand(event, layer, store);
         state = State.TERMINATE;
       }
     });

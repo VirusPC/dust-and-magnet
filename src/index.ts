@@ -1,6 +1,6 @@
 import { View, Layer, Tool, Selection, Interactor, Command } from "./lib/index";
 import * as d3 from "d3";
-import { dnmTool } from "./dnmTool"
+import { DnMTool } from "./dnmTool"
 import cars from "./data/cars";
 
 const data = cars.slice(0, 10);
@@ -23,7 +23,7 @@ const pointsLayer = view.createLayer("points", renderPoints); //.setRender(rende
 
 
 /****** interaction part ******/
-backgroundLayer.attach(dnmTool);
+backgroundLayer.attach(DnMTool());
 //view.run();
 
 
