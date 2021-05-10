@@ -22,10 +22,10 @@ export type Store = {
 }; //Map<string, unknown>;
 
 export class Interactor {
-  name: string;
-  activeEvent: string;
-  frameEvent: string;
-  terminateEvent: string;
+  private name: string;
+  private activeEvent: string;
+  private frameEvent: string;
+  private terminateEvent: string;
 
   prepareCommand: (layer?: Layer, store?: Store) => void;
   activeCommand: Command;
@@ -99,7 +99,7 @@ export class Interactor {
     let state = State.TERMINATE;
     const store: Store = {};
     let timer: null | NodeJS.Timeout = null;
-    const delay = 1000;
+    const threshold = 1000;
 
     prepareCommand(layer, store);
 
@@ -109,19 +109,23 @@ export class Interactor {
       state = State.ACTIVE;
       timer = setTimeout(() => {
         state = State.TERMINATE;
-      }, delay);
+      }, threshold);
     });
     layer.node().on(`${frameEvent}.${name}`, function (event) {
       if (state === State.ACTIVE || state === State.FRAME) {
-        clearTimeout(timer);
         console.log("----frame----");
+        clearTimeout(timer);
         frameCommand(event, layer, store);
         state = State.FRAME;
+        timer = setTimeout(() => {
+          state = State.TERMINATE;
+        }, threshold);
       }
     });
     layer.node().on(`${terminateEvent}.${name}`, function (event) {
       if (state === State.FRAME) {
         console.log("----terminate----");
+        clearTimeout(timer);
         terminateCommand(event, layer, store);
         state = State.TERMINATE;
       }
@@ -131,11 +135,15 @@ export class Interactor {
 
 export class Tool {
   // precondition: Function;
-  selection: Selection;
-  interactors: Interactor[];
+  private selection: Selection;
+  private interactors: Interactor[];
 
   constructor(interactors: Interactor[]) {
     this.interactors = interactors;
+  }
+
+  public getInteractors(){
+    return this.interactors;
   }
 }
 

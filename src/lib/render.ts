@@ -6,10 +6,10 @@ enum Namespace {
 }
 
 export class Layer {
-  name: string;
-  view: View;
-  root: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
-  tools: Tool[];
+  private name: string;
+  private view: View;
+  private root: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
+  private tools: Tool[];
   //objects: Object[];
   constructor(name: string, view: View) {
     this.name = name;
@@ -20,7 +20,8 @@ export class Layer {
     this.tools = [];
   }
   attach(tool: Tool) {
-    for (const interactor of tool.interactors) {
+    const interactors = tool.getInteractors();
+    for (const interactor of interactors) {
       interactor.bindTo(this);
     }
   }
@@ -39,6 +40,16 @@ export class Layer {
   }
   node(): d3.Selection<SVGGElement, unknown, SVGGElement, unknown> {
     return this.root;
+  }
+
+  getName(): string{
+    return this.name;
+  }
+  getSiblingLayer(name: string) {
+    return this.view.getLayer(name);
+  }
+  createSiblingLayer(name: string) {
+    return this.view.createLayer(name);
   }
   //onObject: (position: [number, number]) => boolean;
 }
@@ -78,7 +89,7 @@ export class View {
   createLayerUpon(name: string, otherName: string): Layer {
     let layer: null | Layer;
     for (let i = 0; i < this.layers.length; ++i) {
-      if (this.layers[i].name === otherName) {
+      if (this.layers[i].getName() === otherName) {
         layer = new Layer(name, this);
         this.layers.splice(i + 1, 0, layer);
         break;
@@ -89,7 +100,7 @@ export class View {
 
   getLayer(name: string): Layer {
     for (const layer of this) {
-      if (layer.name === name) {
+      if (layer.getName() === name) {
         return layer;
       }
     }
@@ -99,7 +110,7 @@ export class View {
   run() {
     for (const layer of this) {
       layer.run();
-      this.root.node().append(layer.root.node());
+      this.root.node().append(layer.node().node());
     }
     this.svg.node().append(this.root.node());
   }

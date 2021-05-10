@@ -18,6 +18,9 @@ function frameCommand(event: Event, layer: Layer, store: Store) {
   const [offsetX, offsetY] = store["offset"] as [number, number];
   const target = d3.select(event.target as SVGElement);
   target.attr("x", x - offsetX).attr("y", y - offsetY);
+  const pointsLayer = layer.getSiblingLayer("points");
+  const circles = pointsLayer.node().selectAll("circle");
+
 }
 
 function terminateCommand(event: Event, layer: Layer, store: Store) {
