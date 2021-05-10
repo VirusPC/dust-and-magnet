@@ -14,15 +14,11 @@ export class Layer {
   constructor(name: string, view: View) {
     this.name = name;
     this.view = view;
-    //this.root = document.createElementNS(Namespace.svg, "g");
-    //this.root.classList.add(`layer-${name}`);
     this.root = d3.select(document.createElementNS(Namespace.svg, "g")).classed(`layer-${name}`, true)
     this.tools = [];
   }
   attach(tool: Tool) {
-    tool.setInteractor(this);
-    //if(tool.length != undefined) {}
-    // return Tool();
+    tool.interactor.bindTo(this);
   }
   listen: (layer: Layer) => void;
   setRender(render: (root: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>) => void): this {
@@ -44,12 +40,14 @@ export class View {
   svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
   root: d3.Selection<SVGGElement, unknown, Element, unknown>;
   layers: Layer[];
+  //newLayers: Layer[];
 
   constructor(name: string, svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>) {
     this.name = name;
     this.svg = svg;
     this.root = d3.select(document.createElementNS(Namespace.svg, "g"));
     this.root.classed(`view-${name}`, true);
+    //this.svg.append("")
     this.layers = [];
   }
 
@@ -72,9 +70,7 @@ export class View {
   }
 
   getLayer(name: string): Layer {
-    console.log(this.layers)
     for (const layer of this) {
-      console.log(layer.name)
       if (layer.name === name) {
         return layer;
       }
@@ -90,8 +86,8 @@ export class View {
     this.svg.node().append(this.root.node());
   }
 
-  [Symbol.iterator] = function* () {
-    for (const layer of this.layers as Layer[]) {
+  public *[Symbol.iterator](): IterableIterator<Layer> {
+    for (const layer of this.layers) {
       yield layer;
     }
   };
