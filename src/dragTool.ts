@@ -17,7 +17,7 @@ function frameCommand(event: Event, layer: Layer, store: Store) {
   const [x, y] = d3.pointer(event);
   const [offsetX, offsetY] = store["offset"] as [number, number];
   const target = d3.select(event.target as SVGElement);
-  target.attr("x", x - offsetX).attr("y", y-offsetY)
+  target.attr("x", x - offsetX).attr("y", y - offsetY);
 }
 
 function terminateCommand(event: Event, layer: Layer, store: Store) {

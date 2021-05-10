@@ -20,8 +20,8 @@ export class Layer {
     this.tools = [];
   }
   attach(tool: Tool) {
-    for(const interactor of tool.interactors){
-     interactor.bindTo(this);
+    for (const interactor of tool.interactors) {
+      interactor.bindTo(this);
     }
   }
   listen: (layer: Layer) => void;

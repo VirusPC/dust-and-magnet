@@ -19,7 +19,7 @@ export interface Selection {
 
 export type Store = {
   [prop: string]: unknown;
-}//Map<string, unknown>;
+}; //Map<string, unknown>;
 
 export class Interactor {
   name: string;
@@ -98,6 +98,8 @@ export class Interactor {
 
     let state = State.TERMINATE;
     const store: Store = {};
+    let timer: null | NodeJS.Timeout = null;
+    const delay = 1000;
 
     prepareCommand(layer, store);
 
@@ -105,9 +107,13 @@ export class Interactor {
       console.log("----ative----");
       activeCommand(event, layer, store);
       state = State.ACTIVE;
+      timer = setTimeout(() => {
+        state = State.TERMINATE;
+      }, delay);
     });
     layer.node().on(`${frameEvent}.${name}`, function (event) {
       if (state === State.ACTIVE || state === State.FRAME) {
+        clearTimeout(timer);
         console.log("----frame----");
         frameCommand(event, layer, store);
         state = State.FRAME;

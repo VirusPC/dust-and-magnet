@@ -1,10 +1,11 @@
-import { Tool, Interactor, Layer, Store } from './lib/index'
-import * as d3 from 'd3';
-import { DragTool } from './dragTool'
+import { Tool, Interactor, Layer, Store } from "./lib/index";
+import * as d3 from "d3";
+import { DragTool } from "./dragTool";
 
-const ClickInteractor: () => Interactor = () => new Interactor("clickInteractor")
-  .prepare(prepareCallback)
-  .active("click", clickCommand);
+const ClickInteractor: () => Interactor = () =>
+  new Interactor("clickInteractor")
+    .prepare(prepareCallback)
+    .active("click", clickCommand);
 
 const clickInteractor: Interactor = ClickInteractor();
 
@@ -18,7 +19,7 @@ function clickCommand(event: Event, layer: Layer, store: Store) {
   const magnetWidth = 30;
   const magnetHeight = 30;
   const position = d3.pointer(event);
-  const magnetsNum = store['magnetsNum'] as number;
+  const magnetsNum = store["magnetsNum"] as number;
   const magnetsLayer = layer.view.createLayer(`magnet-${magnetsNum}`);
 
   magnetsLayer
@@ -36,4 +37,3 @@ function clickCommand(event: Event, layer: Layer, store: Store) {
 }
 
 export const DnMTool = () => new Tool([clickInteractor]);
-
