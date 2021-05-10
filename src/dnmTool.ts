@@ -39,10 +39,15 @@ function clickCommand(event: Event, layer: Layer, store: Store) {
   const magnetLayer = layer.createSiblingLayer(`magnet-${magnetsNum}`);
   const magnetProperty = magnetProperties[magnetsNum % magnetProperties.length];
 
+  const dustData = layer.getSiblingLayer("points").node().selectAll("circle").data();
+  const extent = d3.extent(dustData, (d: {[prop: string]: number}) => d[magnetProperty])
+
   magnetLayer
     .node()
     .classed("magnet", true)
-    .attr("magnetProperty", magnetProperty);
+    .attr("magnetProperty", magnetProperty)
+    .attr("min", extent[0])
+    .attr("max", extent[1]);
 
   magnetLayer
     .node()

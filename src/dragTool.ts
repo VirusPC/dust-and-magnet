@@ -15,39 +15,73 @@ function activeCommand(event: Event, layer: Layer, store: Store) {
 
 function frameCommand(event: Event, layer: Layer, store: Store) {
   const [x, y] = d3.pointer(event);
+
+  // move magnet
   const [offsetX, offsetY] = store["offset"] as [number, number];
   const [newX, newY] = [x - offsetX, y-offsetY];
-
-  const magnetProp = layer.node().attr("magnetProperty");
-
   layer
     .node()
     .selectAll("rect, text")
     .attr("x", newX)
     .attr("y", newY);
 
+
+  // move dusts
+  const magnets = d3.selectAll(".magnet");
   const pointsLayer = layer.getSiblingLayer("points");
   const circles = pointsLayer.node().selectAll("circle");
   const data = circles.data();
-  const extent = d3.extent(data, (d: {[prop: string]: number}) => d[magnetProp]);
-  const range = extent[1] - extent[0];
-  if(typeof extent[0] === "undefined" || typeof extent[1] === "undefined" || range===0) {
-    return;
+
+  const magnetData: {
+    prop: string,
+    x: number,
+    y: number,
+    min: number,
+    max: number
+  }[] = [];
+
+
+  for(const magnet of (magnets as Iterable<SVGElement>)) {
+    magnetData.push({
+      prop: magnet.getAttribute("magnetProperty"),//d3.select(magnet).attr("magnetProperty"),
+      x: +magnet.querySelector("rect").getAttribute("x"),
+      y: +magnet.querySelector("rect").getAttribute("y"),
+      min: +magnet.getAttribute("min"),
+      max: +magnet.getAttribute("max"),
+    })
   }
+
+  console.log(magnetData);
+  
   const time = 1;
   const magnitude = 1;
   for(const circle of circles) {
     const circleSelection = d3.select(circle);
-    const value = (circleSelection.datum() as {[prop: string]: number})[magnetProp] as number;
-    const velocity = magnitude * (value - (extent[0] as number)) / range
-    //console.log(d3.select(circle).datum());
     const circleX = +circleSelection.attr("cx");
     const circleY = +circleSelection.attr("cy");
-    const [velocityX, velocityY] = resolveVelocity(velocity, [newX, newY], [circleX, circleY]);
-    
-    circleSelection.attr("cx", circleX + velocityX * time)
-    circleSelection.attr("cy", circleY + velocityY * time)
-    console.log(velocityX, velocityY)
+    let vxAcc = 0;
+    let vyAcc = 0;
+    console.log("data", magnetData)
+    for(const magnet of magnetData){
+      const {prop, x, y, min, max} = magnet;
+      const range = max - min;
+      console.log(min, max, range)
+      if(range === 0 ){
+        continue;
+      }
+      const value = (circleSelection.datum() as {[prop: string]: number})[prop] as number;
+      const velocity = magnitude * (value - min) / range
+      //console.log(d3.select(circle).datum());
+      const [velocityX, velocityY] = resolveVelocity(velocity, [x, y], [circleX, circleY]);
+      vxAcc += velocityX;
+      vyAcc += velocityY;
+    }
+    console.log("vx",vxAcc)
+    console.log("vy", vyAcc)
+    vxAcc /= magnetData.length;
+    vyAcc /= magnetData.length;
+    circleSelection.attr("cx", circleX + vxAcc * time)
+    circleSelection.attr("cy", circleY + vyAcc * time)
   }
 }
 
