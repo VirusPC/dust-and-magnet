@@ -9,7 +9,7 @@ export class Layer {
   private name: string;
   private view: View;
   private root: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
-  private tools: Tool[];
+  //private tools: Tool[];
   //objects: Object[];
   constructor(name: string, view: View) {
     this.name = name;
@@ -17,7 +17,7 @@ export class Layer {
     this.root = d3
       .select(document.createElementNS(Namespace.svg, "g"))
       .classed(`layer-${name}`, true);
-    this.tools = [];
+    //this.tools = [];
   }
   attach(tool: Tool) {
     const interactors = tool.getInteractors();
